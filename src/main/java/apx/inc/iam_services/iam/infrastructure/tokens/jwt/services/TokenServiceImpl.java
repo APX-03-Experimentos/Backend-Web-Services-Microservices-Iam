@@ -1,5 +1,6 @@
 package apx.inc.iam_services.iam.infrastructure.tokens.jwt.services;
 
+import apx.inc.iam_services.iam.infrastructure.authorization.sfs.model.UserDetailsImpl;
 import apx.inc.iam_services.iam.infrastructure.tokens.jwt.BearerTokenService;
 import apx.inc.iam_services.iam.infrastructure.tokens.jwt.BearerTokenService;
 import io.jsonwebtoken.*;
@@ -27,24 +28,28 @@ public class TokenServiceImpl implements BearerTokenService {
     private static final String BEARER_TOKEN_PREFIX = "Bearer";
     private static final int TOKEN_BEGIN_INDEX = 7;
 
-    @Value("WriteHereYourSecretStringForTokenSigningCredentials")
+    @Value("${jwt.secret}")
     private String secretKey;
 
-    @Value("7")
+    @Value(("${jwt.expiration-days:7}"))
     private int tokenExpirationTimeInDays;
 
 
-    private String buildTokenWithDefaultParameters(String email) {
-        var issuedAt= new Date();
-        var expirationDate= DateUtils.addDays(issuedAt, tokenExpirationTimeInDays);
-        var key=getSigningKey();
+    private String buildTokenWithDefaultParameters(String username, Long userId) {
+        var issuedAt = new Date();
+        var expirationDate = DateUtils.addDays(issuedAt, tokenExpirationTimeInDays);
+        var key = getSigningKey();
+
         return Jwts.builder()
-                .subject(email)
+                .subject(username)
+                .claim("user_id", userId)  // ✅ AGREGAR userId en los claims
+                .claim("username", username)
                 .issuedAt(issuedAt)
                 .expiration(expirationDate)
                 .signWith(key)
                 .compact();
     }
+
 
     private SecretKey getSigningKey() {
         byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
@@ -93,14 +98,17 @@ public class TokenServiceImpl implements BearerTokenService {
 
     @Override
     public String generateToken(Authentication authentication) {
-        return buildTokenWithDefaultParameters(authentication.getName());
+        // Necesitas extraer el userId del UserDetails
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+        return buildTokenWithDefaultParameters(authentication.getName(), userDetails.getId());
     }
 
     @Override
-    public String generateToken(String email) {
-        return buildTokenWithDefaultParameters(email);
+    public String generateToken(String username) {
+        // Para este método necesitas obtener el userId de otra forma
+        // O eliminar este método si no lo usas
+        throw new UnsupportedOperationException("Use generateToken with userId");
     }
-
     @Override
     public String getUserNameFromToken(String token) {
         return extractClaim(token, Claims::getSubject);

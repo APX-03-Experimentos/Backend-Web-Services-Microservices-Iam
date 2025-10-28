@@ -10,7 +10,9 @@ import apx.inc.iam_services.iam.infrastructure.persistence.jpa.repositories.User
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserCommandServiceImpl implements UserCommandService {
@@ -118,8 +120,23 @@ public class UserCommandServiceImpl implements UserCommandService {
         if (!hashingService.matches(signInCommand.password(), user.get().getPassword())) {
             throw new IllegalArgumentException("Invalid password");
         }
-        var token = tokenService.generateToken(user.get().getUserName());
-        return Optional.of(ImmutablePair.of(user.get(), token));
+
+        // ✅ CORREGIDO: Extraer roles y pasar al token
+        var authenticatedUser = user.get();
+
+        // Extraer roles del usuario
+        List<String> roles = authenticatedUser.getUserRoles().stream()
+                .map(role -> role.getStringName()) // Ajusta según tu entidad Role
+                .collect(Collectors.toList());
+
+        // ✅ Usar el nuevo método que requiere userId y roles
+        var token = tokenService.generateToken(
+                authenticatedUser.getUserName(),
+                authenticatedUser.getId(),
+                roles
+        );
+
+        return Optional.of(ImmutablePair.of(authenticatedUser, token));
     }
 
     @Override
@@ -134,5 +151,30 @@ public class UserCommandServiceImpl implements UserCommandService {
         var user = new User(signUpCommand.userName(), hashingService.encode(signUpCommand.password()), roles);
         userRepository.save(user);
         return userRepository.findByUserName(signUpCommand.userName());
+    }
+
+
+
+
+
+
+
+
+    @Override
+    public void assignCourseToUser(Long userId, Long courseId) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        user.assignToCourse(courseId);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void removeCourseFromUser(Long userId, Long courseId) {
+        var user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        user.removeFromCourse(courseId);
+        userRepository.save(user);
     }
 }

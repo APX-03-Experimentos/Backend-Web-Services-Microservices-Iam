@@ -12,13 +12,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class TokenServiceImpl implements BearerTokenService {
@@ -35,12 +38,16 @@ public class TokenServiceImpl implements BearerTokenService {
     private int tokenExpirationTimeInDays;
 
 
-    private String buildTokenWithDefaultParameters(String email) {
-        var issuedAt= new Date();
-        var expirationDate= DateUtils.addDays(issuedAt, tokenExpirationTimeInDays);
-        var key=getSigningKey();
+    private String buildTokenWithDefaultParameters(String username, Long userId, List<String> roles) {
+        var issuedAt = new Date();
+        var expirationDate = DateUtils.addDays(issuedAt, tokenExpirationTimeInDays);
+        var key = getSigningKey();
+
         return Jwts.builder()
-                .subject(email)
+                .subject(username)
+                .claim("user_id", userId)
+                .claim("username", username)
+                .claim("roles", roles)  // ✅ INCLUIR ROLES
                 .issuedAt(issuedAt)
                 .expiration(expirationDate)
                 .signWith(key)
@@ -94,12 +101,19 @@ public class TokenServiceImpl implements BearerTokenService {
 
     @Override
     public String generateToken(Authentication authentication) {
-        return buildTokenWithDefaultParameters(authentication.getName());
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        // ✅ Extraer los roles del UserDetails
+        List<String> roles = userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
+        return buildTokenWithDefaultParameters(authentication.getName(), userDetails.getId(), roles);
     }
 
-    @Override
-    public String generateToken(String email) {
-        return buildTokenWithDefaultParameters(email);
+
+    public String generateToken(String username, Long userId, List<String> roles) {
+        return buildTokenWithDefaultParameters(username, userId, roles);
     }
 
     @Override

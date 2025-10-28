@@ -234,4 +234,32 @@ public class UserController {
     }
 
 
+
+
+
+
+
+
+    @PostMapping("/{userId}/courses/{courseId}")
+    public ResponseEntity<Void> assignCourseToUser(@PathVariable Long userId,
+                                                   @PathVariable Long courseId) {
+        try {
+            userCommandService.assignCourseToUser(userId, courseId);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @DeleteMapping("/{userId}/courses/{courseId}")
+    public ResponseEntity<Void> removeCourseFromUser(@PathVariable Long userId,
+                                                     @PathVariable Long courseId) {
+        try {
+            userCommandService.removeCourseFromUser(userId, courseId);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
 }

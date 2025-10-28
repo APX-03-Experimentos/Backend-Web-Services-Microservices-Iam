@@ -18,4 +18,11 @@ public interface UserCommandService {
     Optional<User> handle(SignUpCommand signUpCommand);
 
     Optional<User> handle(LeaveCourseCommand leaveCourseCommand);
+
+
+
+
+    void removeCourseFromUser(Long userId, Long courseId);
+
+    void assignCourseToUser(Long userId, Long courseId);
 }

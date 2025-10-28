@@ -1,5 +1,6 @@
 package apx.inc.iam_services.iam.rest;
 
+import apx.inc.iam_services.iam.application.internal.outboundservices.tokens.TokenService;
 import apx.inc.iam_services.iam.domain.services.UserCommandService;
 import apx.inc.iam_services.iam.rest.resources.AuthenticatedUserResource;
 import apx.inc.iam_services.iam.rest.resources.SignInResource;
@@ -23,9 +24,11 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name="Authentication", description = "Authentication operations")
 public class AuthenticationController {
     private final UserCommandService userCommandService;
+    private final TokenService tokenService;
 
-    public AuthenticationController(UserCommandService userCommandService) {
+    public AuthenticationController(UserCommandService userCommandService, TokenService tokenService) {
         this.userCommandService = userCommandService;
+        this.tokenService = tokenService;
     }
 
     @PostMapping("/sign-in")
@@ -65,9 +68,24 @@ public class AuthenticationController {
 
     }
 
-    // ✅ Handler para OPTIONS (preflight)
-    @RequestMapping(value = "/**", method = RequestMethod.OPTIONS)
-    public ResponseEntity<Void> handleOptions() {
-        return ResponseEntity.ok().build();
+    @GetMapping("/validate")
+    @Operation(summary = "Validate token", description = "Validates if a JWT token is valid")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Token is valid"),
+            @ApiResponse(responseCode = "401", description = "Token is invalid")
+    })
+    public ResponseEntity<Boolean> validateToken(@RequestHeader("Authorization") String token) {
+        try {
+            // Extraer el token del header "Bearer <token>"
+            if (token != null && token.startsWith("Bearer ")) {
+                String jwtToken = token.substring(7);
+                boolean isValid = tokenService.validateToken(jwtToken);
+                return ResponseEntity.ok(isValid);
+            }
+            return ResponseEntity.ok(false);
+        } catch (Exception e) {
+            return ResponseEntity.ok(false);
+        }
     }
+
 }

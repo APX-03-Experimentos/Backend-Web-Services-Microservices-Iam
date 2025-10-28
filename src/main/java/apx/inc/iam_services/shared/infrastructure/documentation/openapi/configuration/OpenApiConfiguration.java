@@ -18,12 +18,12 @@ import java.util.List;
 @Configuration
 public class OpenApiConfiguration {
 
-    @Value("${server.port:8081}")
+    @Value("${server.port}")
     private String serverPort;
 
     @Bean
     public OpenAPI learninfPlatformOpenApi() {
-// General configuration
+    // General configuration
         var openApi = new OpenAPI();
         openApi
                 .info(new Info()

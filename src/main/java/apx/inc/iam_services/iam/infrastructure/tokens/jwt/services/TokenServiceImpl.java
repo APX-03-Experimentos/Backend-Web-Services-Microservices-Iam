@@ -28,28 +28,24 @@ public class TokenServiceImpl implements BearerTokenService {
     private static final String BEARER_TOKEN_PREFIX = "Bearer";
     private static final int TOKEN_BEGIN_INDEX = 7;
 
-    @Value("${jwt.secret}")
+    @Value("WriteHereYourSecretStringForTokenSigningCredentials")
     private String secretKey;
 
-    @Value(("${jwt.expiration-days:7}"))
+    @Value("7")
     private int tokenExpirationTimeInDays;
 
 
-    private String buildTokenWithDefaultParameters(String username, Long userId) {
-        var issuedAt = new Date();
-        var expirationDate = DateUtils.addDays(issuedAt, tokenExpirationTimeInDays);
-        var key = getSigningKey();
-
+    private String buildTokenWithDefaultParameters(String email) {
+        var issuedAt= new Date();
+        var expirationDate= DateUtils.addDays(issuedAt, tokenExpirationTimeInDays);
+        var key=getSigningKey();
         return Jwts.builder()
-                .subject(username)
-                .claim("user_id", userId)  // ✅ AGREGAR userId en los claims
-                .claim("username", username)
+                .subject(email)
                 .issuedAt(issuedAt)
                 .expiration(expirationDate)
                 .signWith(key)
                 .compact();
     }
-
 
     private SecretKey getSigningKey() {
         byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
@@ -98,17 +94,14 @@ public class TokenServiceImpl implements BearerTokenService {
 
     @Override
     public String generateToken(Authentication authentication) {
-        // Necesitas extraer el userId del UserDetails
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        return buildTokenWithDefaultParameters(authentication.getName(), userDetails.getId());
+        return buildTokenWithDefaultParameters(authentication.getName());
     }
 
     @Override
-    public String generateToken(String username) {
-        // Para este método necesitas obtener el userId de otra forma
-        // O eliminar este método si no lo usas
-        throw new UnsupportedOperationException("Use generateToken with userId");
+    public String generateToken(String email) {
+        return buildTokenWithDefaultParameters(email);
     }
+
     @Override
     public String getUserNameFromToken(String token) {
         return extractClaim(token, Claims::getSubject);

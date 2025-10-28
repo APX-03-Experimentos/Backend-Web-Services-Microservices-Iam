@@ -1,6 +1,5 @@
 package apx.inc.iam_services.iam.domain.model.aggregates;
 
-//import apx.inc.iam_services.courses.domain.model.aggregates.Course;
 import apx.inc.iam_services.iam.domain.model.commands.UpdateUserCommand;
 import apx.inc.iam_services.iam.domain.model.entities.Role;
 import apx.inc.iam_services.shared.domain.model.aggregates.AuditableAbstractAggregateRoot;
@@ -13,7 +12,7 @@ import java.util.Set;
 
 @Getter
 @Entity
-public class User extends AuditableAbstractAggregateRoot <User>{
+public class User extends AuditableAbstractAggregateRoot<User> {
 
     private String userName;
     private String password;

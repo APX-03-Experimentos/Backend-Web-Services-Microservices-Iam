@@ -103,6 +103,7 @@ public class WebSecurityConfiguration {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of(
+                "http://localhost:4200", // Frontend
                 "http://localhost:8080", // Swagger UI
                 "http://localhost:8081",  // IAM mismo
                 "http://localhost:8082",  // Servicio courses

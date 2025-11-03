@@ -42,10 +42,8 @@ public class OpenApiConfiguration {
                         .url("https://docs.apxlearnhive.com"))
                 .servers(List.of(
                         new Server()
-                                .url("http://localhost:" + serverPort)
-                                .description("Local Development Server"),
-                        new Server()
                                 .url("https://backend-web-services-microservices-iam.onrender.com")
+
                 ));
 
         // Add security scheme

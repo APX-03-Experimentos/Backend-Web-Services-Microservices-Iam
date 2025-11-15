@@ -31,7 +31,7 @@ public class TokenServiceImpl implements BearerTokenService {
     private static final String BEARER_TOKEN_PREFIX = "Bearer";
     private static final int TOKEN_BEGIN_INDEX = 7;
 
-    @Value("${jwt.secret}")
+    @Value("WriteHereYourSecretStringForTokenSigningCredentials")
     private String secretKey;
 
     @Value("7")

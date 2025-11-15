@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,12 +24,30 @@ import java.util.List;
 @RequestMapping(value = "/api/v1/roles", produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name= "Roles", description = "Operations related to roles management")
 public class RolesController {
+    private static final Logger logger = LoggerFactory.getLogger(RolesController.class);
+
     private final RoleCommandService roleCommandService;
     private final RoleQueryService roleQueryService;
 
     public RolesController(RoleCommandService roleCommandService, RoleQueryService roleQueryService) {
         this.roleCommandService = roleCommandService;
         this.roleQueryService = roleQueryService;
+        logger.info("✅ RolesController initialized and registered!");
+        logger.info("✅ RoleCommandService: {}", roleCommandService != null ? "INJECTED" : "NULL");
+        logger.info("✅ RoleQueryService: {}", roleQueryService != null ? "INJECTED" : "NULL");
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<String> publicTest() {
+        logger.info("🟡 GET /api/v1/roles/test called");
+        return ResponseEntity.ok("✅ Roles endpoint is accessible without auth");
+    }
+
+    // Agrega este endpoint de diagnóstico primero
+    @GetMapping("/ping")
+    public ResponseEntity<String> ping() {
+        logger.info("🟡 GET /api/v1/roles/ping called - Controller is working!");
+        return ResponseEntity.ok("PONG - RolesController is working at: " + System.currentTimeMillis());
     }
 
     @GetMapping
@@ -39,23 +59,34 @@ public class RolesController {
             }
     )
     public ResponseEntity<List<RoleResource>> getAllRoles() {
-        //create a query to get all roles
-        GetAllRolesQuery getAllRolesQuery = new GetAllRolesQuery();
+        logger.info("🟡 GET /api/v1/roles endpoint called!");
 
-        //handle the query using the roleQueryService
-        List<Role> roles = roleQueryService.handle(getAllRolesQuery);
+        try {
+            //create a query to get all roles
+            GetAllRolesQuery getAllRolesQuery = new GetAllRolesQuery();
+            logger.info("🔍 Query created: {}", getAllRolesQuery);
 
-        //verify if roles are not null or empty
-        if (roles == null || roles.isEmpty()) {
-            return ResponseEntity.noContent().build(); // 404 No Content
+            //handle the query using the roleQueryService
+            List<Role> roles = roleQueryService.handle(getAllRolesQuery);
+            logger.info("🔍 Roles retrieved: {}", roles != null ? roles.size() : "NULL");
+
+            //verify if roles are not null or empty
+            if (roles == null || roles.isEmpty()) {
+                logger.warn("⚠️ No roles found - returning 204");
+                return ResponseEntity.noContent().build();
+            }
+
+            //map the roles to RoleResource
+            var roleResources = roles.stream()
+                    .map(RoleResourceFromEntityAssembler::toResourceFromEntity)
+                    .toList();
+
+            logger.info("✅ Successfully returning {} roles", roleResources.size());
+            return ResponseEntity.ok(roleResources);
+
+        } catch (Exception e) {
+            logger.error("❌ Error in getAllRoles: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
         }
-
-        //map the roles to RoleResource
-        var roleResources = roles.stream()
-                .map(RoleResourceFromEntityAssembler::toResourceFromEntity)
-                .toList();
-
-        return ResponseEntity.ok(roleResources);
     }
-
 }

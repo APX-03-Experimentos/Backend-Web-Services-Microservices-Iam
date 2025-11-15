@@ -29,6 +29,13 @@ public class AuthenticationController {
     public AuthenticationController(UserCommandService userCommandService, TokenService tokenService) {
         this.userCommandService = userCommandService;
         this.tokenService = tokenService;
+
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<String> testEndpoint() {
+        System.out.println("✅ GET /api/v1/authentication/test called!");
+        return ResponseEntity.ok("✅ AuthenticationController is WORKING!");
     }
 
     @PostMapping("/sign-in")
@@ -41,8 +48,8 @@ public class AuthenticationController {
             }
     )
     public ResponseEntity<AuthenticatedUserResource> signIn(@RequestBody SignInResource signInResource){
-        var signInCommand= SignInCommandFromResourceAssembler.toCommandFromResource(signInResource);
 
+        var signInCommand= SignInCommandFromResourceAssembler.toCommandFromResource(signInResource);
         var authenticatedUser = userCommandService.handle(signInCommand);
 
         if (authenticatedUser.isEmpty()){

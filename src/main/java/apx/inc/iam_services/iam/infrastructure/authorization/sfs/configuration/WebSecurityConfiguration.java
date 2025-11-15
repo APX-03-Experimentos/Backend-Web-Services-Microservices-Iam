@@ -107,7 +107,8 @@ public class WebSecurityConfiguration {
                 "http://localhost:8080", // Swagger UI
                 "http://localhost:8081",  // IAM mismo
                 "http://localhost:8082",  // Servicio courses
-                "http://localhost:8083"   // Servicio assignments
+                "http://localhost:8083",   // Servicio assignments
+                "https://backend-web-services-microservices-iam.onrender.com"
         ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

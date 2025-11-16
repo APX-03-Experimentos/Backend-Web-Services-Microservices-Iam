@@ -15,6 +15,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Bearer Authorization Request Filter.
@@ -29,6 +30,14 @@ public class BearerAuthorizationRequestFilter extends OncePerRequestFilter {
     private static final Logger LOGGER = LoggerFactory.getLogger(BearerAuthorizationRequestFilter.class);
     private final BearerTokenService tokenService;
 
+    private static final List<String> PUBLIC_PATHS = List.of(
+            "/api/v1/authentication",
+            "/swagger-ui",
+            "/v3/api-docs",
+            "/swagger-resources",
+            "/webjars",
+            "/error"
+    );
 
     @Qualifier("defaultUserDetailsService")
     private final UserDetailsService userDetailsService;
@@ -36,6 +45,12 @@ public class BearerAuthorizationRequestFilter extends OncePerRequestFilter {
     public BearerAuthorizationRequestFilter(BearerTokenService tokenService, UserDetailsService userDetailsService) {
         this.tokenService = tokenService;
         this.userDetailsService = userDetailsService;
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return PUBLIC_PATHS.stream().anyMatch(path::startsWith);
     }
 
     /**
@@ -48,18 +63,29 @@ public class BearerAuthorizationRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
         try {
             String token = tokenService.getBearerTokenFrom(request);
-            LOGGER.info("Token: {}", token);
+            LOGGER.info("🔐 Processing request to: {}", request.getRequestURI());
+            LOGGER.info("🔐 Token present: {}", token != null);
+
             if (token != null && tokenService.validateToken(token)) {
                 String username = tokenService.getUserNameFromToken(token);
                 var userDetails = userDetailsService.loadUserByUsername(username);
                 SecurityContextHolder.getContext().setAuthentication(UsernamePasswordAuthenticationTokenBuilder.build(userDetails, request));
+                LOGGER.info("✅ User authenticated: {}", username);
+                filterChain.doFilter(request, response); // ✅ Solo continuar si está autenticado
             } else {
-                LOGGER.info("Token is not valid");
+                LOGGER.warn("❌ Invalid or missing token for: {}", request.getRequestURI());
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"Valid Bearer token required\"}");
+                // ❌ NO llamar filterChain.doFilter() - la petición se rechaza aquí
             }
 
         } catch (Exception e) {
-            LOGGER.error("Cannot set user authentication: {}", e.getMessage());
+            LOGGER.error("❌ Authentication error: {}", e.getMessage());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Authentication failed\", \"message\": \"" + e.getMessage() + "\"}");
+            // ❌ NO llamar filterChain.doFilter() - la petición se rechaza aquí
         }
-        filterChain.doFilter(request, response);
     }
 }

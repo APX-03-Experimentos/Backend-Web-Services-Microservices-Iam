@@ -26,7 +26,7 @@ public class User extends AuditableAbstractAggregateRoot<User> {
     private Set<Role> userRoles;
 
     @ElementCollection
-    @CollectionTable(name = "user_courses", joinColumns = @JoinColumn(name = "user_id"))
+    @CollectionTable(name = "student_courses", joinColumns = @JoinColumn(name = "user_id"))
     @Column(name = "course_id")
     private Set<Long> studentInCourseIds; // ✅ Solo IDs
 

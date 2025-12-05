@@ -5,12 +5,12 @@ import apx.inc.iam_services.iam.domain.model.entities.Role;
 import java.util.List;
 
 public record CreateUserCommand(
-        String userName,
+        String username,
         String password,
         List<Role> roles
 ) {
     public CreateUserCommand {
-        if (userName == null || userName.isBlank()) {
+        if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("Username cannot be null or blank");
         }
         if (password == null || password.isBlank()) {

@@ -37,9 +37,9 @@ public class UserCommandServiceImpl implements UserCommandService {
         }
 
         //Check if a user with the same email already exists
-        var existingUserWithEmail = userRepository.findByUserName(updateUserCommand.userName());
+        var existingUserWithEmail = userRepository.findByUsername(updateUserCommand.username());
         if (existingUserWithEmail.isPresent() && !existingUserWithEmail.get().getId().equals(userId)) {
-            throw new IllegalArgumentException("User with userName " + updateUserCommand.userName() + " already exists");
+            throw new IllegalArgumentException("User with userName " + updateUserCommand.username() + " already exists");
         }
 
         var userToUpdate = userOptional.get();
@@ -55,7 +55,7 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         // ✅ Crea un nuevo comando con la contraseña cifrada
         var commandWithEncodedPassword = new UpdateUserCommand(
-                updateUserCommand.userName(),
+                updateUserCommand.username(),
                 encodedPassword
         );
 
@@ -112,10 +112,10 @@ public class UserCommandServiceImpl implements UserCommandService {
 
     @Override
     public Optional<ImmutablePair<User, String>> handle(SignInCommand signInCommand) {
-        var user = userRepository.findByUserName(signInCommand.userName());
+        var user = userRepository.findByUsername(signInCommand.username());
 
         if (user.isEmpty()) {
-            throw new IllegalArgumentException("User with user name " + signInCommand.userName() + " not found");
+            throw new IllegalArgumentException("User with user name " + signInCommand.username() + " not found");
         }
         if (!hashingService.matches(signInCommand.password(), user.get().getPassword())) {
             throw new IllegalArgumentException("Invalid password");
@@ -131,7 +131,7 @@ public class UserCommandServiceImpl implements UserCommandService {
 
         // ✅ Usar el nuevo método que requiere userId y roles
         var token = tokenService.generateToken(
-                authenticatedUser.getUserName(),
+                authenticatedUser.getUsername(),
                 authenticatedUser.getId(),
                 roles
         );
@@ -141,16 +141,16 @@ public class UserCommandServiceImpl implements UserCommandService {
 
     @Override
     public Optional<User> handle(SignUpCommand signUpCommand) {
-        if (userRepository.existsByUserName(signUpCommand.userName())) {
-            throw new IllegalArgumentException("User with user name " + signUpCommand.userName() + " already exists");
+        if (userRepository.existsByUsername(signUpCommand.username())) {
+            throw new IllegalArgumentException("User with user name " + signUpCommand.username() + " already exists");
         }
         var roles= signUpCommand.roles().stream().map(
                 role->roleRepository.findByName(role)
                         .orElseThrow(() -> new IllegalArgumentException("Role " + role + " not found"))
                 ).toList();
-        var user = new User(signUpCommand.userName(), hashingService.encode(signUpCommand.password()), roles);
+        var user = new User(signUpCommand.username(), hashingService.encode(signUpCommand.password()), roles);
         userRepository.save(user);
-        return userRepository.findByUserName(signUpCommand.userName());
+        return userRepository.findByUsername(signUpCommand.username());
     }
 
 

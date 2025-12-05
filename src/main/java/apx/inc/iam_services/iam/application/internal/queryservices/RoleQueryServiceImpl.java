@@ -23,8 +23,4 @@ public class RoleQueryServiceImpl implements RoleQueryService {
         return roleRepository.findAll();
     }
 
-//    @Override
-//    public Optional<Role> handle(GetRoleByNameQuery getRoleByNameQuery) {
-//        return roleRepository.findByName(getRoleByNameQuery.name());
-//    }
 }

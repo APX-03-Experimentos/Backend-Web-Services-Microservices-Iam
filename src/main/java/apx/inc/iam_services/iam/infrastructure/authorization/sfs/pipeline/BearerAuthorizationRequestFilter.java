@@ -67,7 +67,7 @@ public class BearerAuthorizationRequestFilter extends OncePerRequestFilter {
             LOGGER.info("🔐 Token present: {}", token != null);
 
             if (token != null && tokenService.validateToken(token)) {
-                String username = tokenService.getUserNameFromToken(token);
+                String username = tokenService.getUsernameFromToken(token);
                 var userDetails = userDetailsService.loadUserByUsername(username);
                 SecurityContextHolder.getContext().setAuthentication(UsernamePasswordAuthenticationTokenBuilder.build(userDetails, request));
                 LOGGER.info("✅ User authenticated: {}", username);

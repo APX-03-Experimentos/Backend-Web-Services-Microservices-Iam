@@ -17,7 +17,6 @@ public class RoleCommandServiceImpl implements RoleCommandService {
         this.roleRepository = roleRepository;
     }
 
-
     @Override
     public void handle(SeedRolesCommand seedRolesCommand) {
         Arrays.stream(Roles.values()).forEach(role -> {

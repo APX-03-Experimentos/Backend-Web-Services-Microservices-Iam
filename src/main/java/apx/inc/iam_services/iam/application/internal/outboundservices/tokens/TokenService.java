@@ -7,7 +7,7 @@ import java.util.List;
 public interface TokenService {
     //String generateToken(String userName);
 
-    String getUserNameFromToken(String token);
+    String getUsernameFromToken(String token);
 
     boolean validateToken(String token);
 

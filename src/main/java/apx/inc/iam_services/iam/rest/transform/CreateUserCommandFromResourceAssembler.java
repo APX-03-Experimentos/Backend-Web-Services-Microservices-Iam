@@ -6,7 +6,7 @@ import apx.inc.iam_services.iam.rest.resources.CreateUserResource;
 public class CreateUserCommandFromResourceAssembler {
     public static CreateUserCommand toCommandFromResource(CreateUserResource createUserResource) {
         return new CreateUserCommand(
-                createUserResource.userName(),
+                createUserResource.username(),
                 createUserResource.password(),
                 createUserResource.roles().stream().toList());
     }

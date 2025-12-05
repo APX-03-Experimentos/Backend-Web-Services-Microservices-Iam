@@ -117,7 +117,7 @@ public class TokenServiceImpl implements BearerTokenService {
     }
 
     @Override
-    public String getUserNameFromToken(String token) {
+    public String getUsernameFromToken(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 

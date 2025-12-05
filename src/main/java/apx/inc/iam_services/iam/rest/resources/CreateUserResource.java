@@ -5,13 +5,13 @@ import apx.inc.iam_services.iam.domain.model.entities.Role;
 import java.util.Set;
 
 public record CreateUserResource(
-        String userName,
+        String username,
         String password,
         Set<Role> roles
 ) {
     public CreateUserResource {
 
-        if (userName == null || userName.isBlank()) {
+        if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("First name cannot be null or blank");
         }
         if (password == null || password.isBlank()) {

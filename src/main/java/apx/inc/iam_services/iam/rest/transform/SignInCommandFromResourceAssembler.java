@@ -6,7 +6,7 @@ import apx.inc.iam_services.iam.rest.resources.SignInResource;
 public class SignInCommandFromResourceAssembler {
     public static SignInCommand toCommandFromResource(SignInResource signInResource){
         return new SignInCommand(
-                signInResource.userName(),
+                signInResource.username(),
                 signInResource.password()
         );
     }

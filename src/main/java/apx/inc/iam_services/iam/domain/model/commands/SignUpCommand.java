@@ -6,12 +6,12 @@ import java.util.List;
 import java.util.Set;
 
 public record SignUpCommand(
-        String userName,
+        String username,
         String password,
         List<Roles> roles
 ) {
     public SignUpCommand {
-        if (userName==null||userName.isBlank()) {
+        if (username==null||username.isBlank()) {
             throw new IllegalArgumentException("Username cannot be empty");
         }
         if (password==null||password.isBlank()) {

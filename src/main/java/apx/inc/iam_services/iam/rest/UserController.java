@@ -147,18 +147,18 @@ public class UserController {
     }
 
 
-    @GetMapping("/email/{userName}")
+    @GetMapping("/email/{username}")
     @Operation(summary = "Get a user by user name", description = "Retrieves a user by user name.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User retrieved successfully"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
-    public ResponseEntity<UserResource> getUserByuserName(@PathVariable String userName) {
-        //Create the query to get the user by userName
-        GetUserByUserNameQuery getUserByUserNameQuery =new GetUserByUserNameQuery(userName);
+    public ResponseEntity<UserResource> getUserByUsername(@PathVariable String username) {
+        //Create the query to get the user by username
+        GetUserByUsernameQuery getUserByUsernameQuery =new GetUserByUsernameQuery(username);
 
         // Execute the query
-        var userOptional =userQueryService.handle(getUserByUserNameQuery);
+        var userOptional =userQueryService.handle(getUserByUsernameQuery);
 
         // Check if the user was found
         if (userOptional.isPresent()) {

@@ -1,11 +1,11 @@
 package apx.inc.iam_services.iam.rest.resources;
 
 public record UpdateUserResource(
-        String userName,
+        String username,
         String password
 ) {
     public UpdateUserResource {
-        if (userName == null || userName.isBlank()) {
+        if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("Email cannot be null or blank");
         }
         if (password == null || password.isBlank()) {

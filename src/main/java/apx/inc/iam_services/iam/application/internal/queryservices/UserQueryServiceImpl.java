@@ -24,8 +24,8 @@ public class UserQueryServiceImpl implements UserQueryService {
     }
 
     @Override
-    public Optional<User> handle(GetUserByUserNameQuery getUserByUserNameQuery) {
-        return userRepository.findByUserName(getUserByUserNameQuery.userName());
+    public Optional<User> handle(GetUserByUsernameQuery getUserByUsernameQuery) {
+        return userRepository.findByUsername(getUserByUsernameQuery.username());
     }
 
     @Override
@@ -33,38 +33,12 @@ public class UserQueryServiceImpl implements UserQueryService {
         return userRepository.findAll();
     }
 
-//    @Override
-//    public Optional<User> handle(GetUserByEmailAndPasswordQuery getUserByEmailAndPasswordQuery) {
-//        return userRepository.findByEmailAndPassword(getUserByEmailAndPasswordQuery.email(), getUserByEmailAndPasswordQuery.password());
-//    }
-
-//    @Override
-//    public Optional<User> handle(GetUserByEmailQuery getUserByEmailQuery) {
-//        return userRepository.findByEmail(getUserByEmailQuery.email());
-//    }
-
-//    @Override
-//    public Optional<ProfileInGroup> handle(GetProfilesInGroupsByGroupIdAndStudentIdQuery query) {
-//        return userRepository.findById(query.studentId())
-//                .map(User::getProfilesInGroups)
-//                .orElse(List.of())
-//                .stream()
-//                .filter(p -> p.getGroupId().equals(query.groupId()))
-//                .findFirst(); // ✅ Solo el primero, como Optional
-//    }
-
     @Override
     public List<User> handle(GetUsersByCourseIdQuery query) {
-        // ✅ SOLUCIÓN: Usar studentInCourseIds (Set<Long>) en lugar de Course entities
         return userRepository.findAll().stream()
                 .filter(user -> user.getStudentInCourseIds().contains(query.courseId()))
                 .toList();
     }
 
-//    @Override
-//    public Optional<String> handle(GetFullNameByIdQuery getFullNameByIdQuery) {
-//        return userRepository.findById(getFullNameByIdQuery.userId())
-//                .map(user -> user.getFirstName() + " " + user.getLastName());
-//    }
 
 }

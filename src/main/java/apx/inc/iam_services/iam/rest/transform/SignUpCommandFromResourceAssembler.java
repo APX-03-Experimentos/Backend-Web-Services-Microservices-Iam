@@ -6,7 +6,7 @@ import apx.inc.iam_services.iam.rest.resources.SignUpResource;
 public class SignUpCommandFromResourceAssembler {
     public static SignUpCommand toCommandFromResource(SignUpResource signUpResource) {
         return new SignUpCommand(
-                signUpResource.userName(),
+                signUpResource.username(),
                 signUpResource.password(),
                 signUpResource.roles()
         );

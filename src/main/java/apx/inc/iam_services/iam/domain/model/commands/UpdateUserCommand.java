@@ -1,10 +1,10 @@
 package apx.inc.iam_services.iam.domain.model.commands;
 
 public record UpdateUserCommand(
-        String userName,
+        String username,
         String password) {
     public UpdateUserCommand{
-        if (userName==null || userName.isBlank() ) {
+        if (username==null || username.isBlank() ) {
             throw new IllegalArgumentException("Username cannot be empty");
         }
         if (password==null || password.isBlank() ) {
